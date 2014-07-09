@@ -19,7 +19,7 @@ Simple-Excel - A simple excel builder
 </dependency>
 ```
 
-### usage
+### Usage
 
 DataBean.java
 ```java
@@ -103,5 +103,5 @@ public class TestExcelFile {
 }
 ```
 
-### demo
-![Image of Yaktocat](main/resources/datagrid.png)
+### Demo
+![Image of Yaktocat](src/main/resources/datagrid.png)
