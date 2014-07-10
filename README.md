@@ -1,7 +1,7 @@
 Simple-Excel - A simple excel builder
 -------------------------------------
 
-### Depencies
+### Dependencies
 ```xml
 <!--excel报表下载的封装-->
 <dependency>
