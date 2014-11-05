@@ -1,7 +1,7 @@
 import java.util.Date;
 
 /**
- * @autor youmoo
+ * @author youmoo
  * @since 2014-07-09 下午9:52
  */
 public class DataBean {

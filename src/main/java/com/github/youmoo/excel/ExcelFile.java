@@ -29,41 +29,44 @@ public class ExcelFile {
     protected boolean freeze = true;//标题冻结
     protected int headRow = 0;//冻结的行
     protected int columnWidth = 25;//列宽
-    private WritableCellFormat HEAD_FORMAT = headFormat();//head样式
-    private WritableCellFormat BODY_FORMAT = bodyFormat();//body样式
-    public static boolean NO_FREEZE = false;
+    private WritableCellFormat headFormat = null;//head样式
+    private WritableCellFormat bodyFormat = null;//body样式
+    protected Alignment alignment = Alignment.CENTRE;//默认居中
+
+    public ExcelFile(String fileName) {
+        init(fileName, this.columnWidth, this.freeze);
+    }
 
     /**
-     * @param fileName 文件名称
+     * @param fileName  文件名称
+     * @param alignment text alignment
      */
-    public ExcelFile(String fileName) throws IOException, WriteException {
+    public ExcelFile(String fileName, Alignment alignment) {
+        this.alignment = alignment;
         init(fileName, this.columnWidth, this.freeze);
     }
 
     /**
      * @param fileName    文件名称
      * @param columnWidth 列宽
-     * @throws Exception
      */
-    public ExcelFile(String fileName, int columnWidth) throws IOException, WriteException {
+    public ExcelFile(String fileName, int columnWidth) {
         init(fileName, columnWidth, this.freeze);
     }
 
     /**
      * @param fileName 文件名
      * @param freeze   是否对标题进行冻结
-     * @throws Exception
      */
-    public ExcelFile(String fileName, boolean freeze) throws IOException, WriteException {
+    public ExcelFile(String fileName, boolean freeze) {
         init(fileName, this.columnWidth, freeze);
     }
 
     /**
      * @param fileName 文件名
      * @param freeze   是否对标题进行冻结
-     * @throws Exception
      */
-    public ExcelFile(String fileName, int columnWidth, boolean freeze) throws IOException, WriteException {
+    public ExcelFile(String fileName, int columnWidth, boolean freeze) {
         init(fileName, columnWidth, freeze);
     }
 
@@ -75,13 +78,20 @@ public class ExcelFile {
      * @param freeze      是否对标题进行冻结
      * @throws java.io.IOException
      */
-    protected void init(String fileName, int columnWidth, boolean freeze) throws IOException {
-        this.fileName = fileName;
-        this.columnWidth = columnWidth;
-        this.freeze = freeze;
-        this.deliveryFile = File.createTempFile(fileName, ".xls");
-        this.wwb = Workbook.createWorkbook(deliveryFile);
-        this.ws = this.wwb.createSheet(fileName, 0);
+    protected void init(String fileName, int columnWidth, boolean freeze) {
+        try {
+            this.fileName = fileName;
+            this.columnWidth = columnWidth;
+            this.freeze = freeze;
+            this.deliveryFile = File.createTempFile(fileName, ".xls");
+            this.wwb = Workbook.createWorkbook(deliveryFile);
+            this.ws = this.wwb.createSheet(fileName, 0);
+            this.headFormat = headFormat();
+            this.bodyFormat = bodyFormat();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**
@@ -184,12 +194,12 @@ public class ExcelFile {
             WritableCell cell;
             Object object = rowData.get(i);
             if (object == null) {
-                cell = new Label(i, row, "", BODY_FORMAT);
+                cell = new Label(i, row, "", bodyFormat);
             } else if (object instanceof Number) {
                 Number number = (Number) object;
-                cell = new jxl.write.Number(i, row, number.doubleValue(), BODY_FORMAT);
+                cell = new jxl.write.Number(i, row, number.doubleValue(), bodyFormat);
             } else {
-                cell = new Label(i, row, object.toString(), BODY_FORMAT);
+                cell = new Label(i, row, object.toString(), bodyFormat);
             }
             this.ws.addCell(cell);
 
@@ -250,22 +260,28 @@ public class ExcelFile {
      * @return
      * @throws jxl.write.WriteException
      */
-    private static WritableCellFormat headFormat() throws WriteException {
-        //设置字体
-        WritableFont font = new WritableFont(WritableFont.createFont("微软雅黑"), 12, WritableFont.BOLD, false);
-        font.setColour(Colour.BLUE);
-        WritableCellFormat cellFormat = new WritableCellFormat(font);
-        //设置边框
-        cellFormat.setBorder(Border.LEFT, BorderLineStyle.THIN);
-        cellFormat.setBorder(Border.TOP, BorderLineStyle.THIN);
-        cellFormat.setBorder(Border.RIGHT, BorderLineStyle.THIN);
-        cellFormat.setBorder(Border.BOTTOM, BorderLineStyle.THIN);
-        //设置文本居中
-        cellFormat.setAlignment(Alignment.CENTRE);
-        cellFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
-        //设置背景色
-        cellFormat.setBackground(Colour.PALE_BLUE);
-        return cellFormat;
+    private WritableCellFormat headFormat() {
+        try {
+            //设置字体
+            WritableFont font = new WritableFont(WritableFont.createFont("微软雅黑"), 12, WritableFont.BOLD, false);
+            font.setColour(Colour.BLUE);
+            WritableCellFormat cellFormat = new WritableCellFormat(font);
+            //设置边框
+            cellFormat.setBorder(Border.LEFT, BorderLineStyle.THIN);
+            cellFormat.setBorder(Border.TOP, BorderLineStyle.THIN);
+            cellFormat.setBorder(Border.RIGHT, BorderLineStyle.THIN);
+            cellFormat.setBorder(Border.BOTTOM, BorderLineStyle.THIN);
+            //设置文本居中
+            cellFormat.setAlignment(Alignment.CENTRE);
+            cellFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
+            //设置背景色
+            cellFormat.setBackground(Colour.PALE_BLUE);
+            return cellFormat;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     /**
@@ -274,19 +290,24 @@ public class ExcelFile {
      * @return
      * @throws jxl.write.WriteException
      */
-    private static WritableCellFormat bodyFormat() throws WriteException {
-        //设置字体
-        WritableFont font = new WritableFont(WritableFont.createFont("微软雅黑"), 12, WritableFont.NO_BOLD, false);
-        WritableCellFormat cellFormat = new WritableCellFormat(font);
-        //设置边框
-        cellFormat.setBorder(Border.LEFT, BorderLineStyle.THIN);
-        cellFormat.setBorder(Border.TOP, BorderLineStyle.THIN);
-        cellFormat.setBorder(Border.RIGHT, BorderLineStyle.THIN);
-        cellFormat.setBorder(Border.BOTTOM, BorderLineStyle.THIN);
-        //设置文本居中
-        cellFormat.setAlignment(Alignment.CENTRE);
-        cellFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
-        return cellFormat;
+    private WritableCellFormat bodyFormat() throws WriteException {
+        try {
+            //设置字体
+            WritableFont font = new WritableFont(WritableFont.createFont("微软雅黑"), 12, WritableFont.NO_BOLD, false);
+            WritableCellFormat cellFormat = new WritableCellFormat(font);
+            //设置边框
+            cellFormat.setBorder(Border.LEFT, BorderLineStyle.THIN);
+            cellFormat.setBorder(Border.TOP, BorderLineStyle.THIN);
+            cellFormat.setBorder(Border.RIGHT, BorderLineStyle.THIN);
+            cellFormat.setBorder(Border.BOTTOM, BorderLineStyle.THIN);
+            //设置文本居中
+            cellFormat.setAlignment(this.alignment);
+            cellFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
+            return cellFormat;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**

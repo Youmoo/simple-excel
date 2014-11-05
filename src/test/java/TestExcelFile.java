@@ -1,5 +1,6 @@
 import com.github.youmoo.excel.ExcelFile;
 import com.github.youmoo.excel.RowReader;
+import jxl.format.Alignment;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * @autor youmoo
+ * @author youmoo
  * @since 2014-07-09 下午9:51
  */
 public class TestExcelFile {
@@ -34,7 +35,7 @@ public class TestExcelFile {
     @Test
     public void generate() throws Exception {
         File file =
-                new ExcelFile("测试文件生成")
+                new ExcelFile("测试文件生成", Alignment.LEFT)
                         .writeHead(titles, titleColSpans)
                         .writeHead(subTitles)
                         .writeRows(dataBeans, new RowReader<DataBean>() {
